@@ -1,15 +1,8 @@
-# Python byproducts
 __pycache__/
 *.pyc
 .venv/
-
-# macOS
 .DS_Store
-
-# Secrets and logs should never be committed
 .env
 *.log
-
-# Assignment report and screenshots stay local (submitted on Canvas instead)
 report/
 evidence/

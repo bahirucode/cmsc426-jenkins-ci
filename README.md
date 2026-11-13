@@ -1,80 +1,40 @@
-# CMSC 426 – Jenkins CI Project
+# CMSC 426 Jenkins CI Project
 
-A small Python app used to practice continuous integration with Jenkins and GitHub.
-Every push to this repository triggers a Jenkins pipeline that runs the app and its unit tests.
+A simple Python app for In-Class Activity #3. The app adds two numbers, and Jenkins runs the tests automatically when code is pushed to GitHub.
 
-## What it does
+## Files
 
-`app.py` has one function, `add_numbers(a, b)`, which returns the sum of two numbers.
-Running the file prints:
-
-```
-Application started
-2 + 3 = 5
-```
-
-## Project structure
-
-```
-cmsc426-jenkins-ci/
-├── app.py              # the application
-├── tests/
-│   ├── __init__.py
-│   └── test_app.py     # unittest test cases for add_numbers()
-├── Jenkinsfile         # declarative pipeline that Jenkins runs
-├── README.md
-└── .gitignore
-```
+- `app.py` - the app (`add_numbers` function)
+- `tests/test_app.py` - unit tests
+- `Jenkinsfile` - the Jenkins pipeline
 
 ## Requirements
 
-- Python 3 (tested with 3.15 from Homebrew; no third-party packages needed)
+- Python 3
 - Git
-- For CI: Jenkins LTS on Java 21, with the Git, GitHub and Pipeline plugins
+- Jenkins with the Git and GitHub plugins (for CI)
 
 ## Run the app
 
-```bash
+```
 python3 app.py
 ```
 
 ## Run the tests
 
-```bash
+```
 python3 -m unittest discover -s tests -v
 ```
 
-All four tests should report `ok`.
+## How Jenkins runs it
 
-## How Jenkins runs the tests
+The Jenkins job `Student-CI-Project` gets the code from this repo and runs the Jenkinsfile. It checks the Python version, runs the app, and runs the tests. If a test fails, the build fails.
 
-The Jenkins job `Student-CI-Project` is a Pipeline job set to "Pipeline script from SCM".
-It checks out this repo and runs the `Jenkinsfile`, which has four stages:
+A GitHub webhook tells Jenkins when new code is pushed. Since Jenkins runs on my laptop, ngrok is used so GitHub can reach it.
 
-1. **Checkout** – pulls the latest commit.
-2. **Environment verification** – prints the python3 and git versions Jenkins is using.
-3. **Run app** – runs `python3 app.py`.
-4. **Unit tests** – runs `python3 -m unittest discover -s tests -v`. If any test fails,
-   the command exits non-zero and Jenkins marks the build as FAILURE.
-
-The Jenkinsfile adds `/opt/homebrew/bin` to `PATH`, because Jenkins started by
-`brew services` only sees the system paths.
-
-## GitHub trigger
-
-The job has "GitHub hook trigger for GITScm polling" turned on. A GitHub webhook sends
-push events to `<public tunnel URL>/github-webhook/`, and Jenkins then starts a build.
-Since Jenkins runs on my laptop (localhost), a temporary tunnel is used only during the
-demo and is shut down afterward.
-
-## Reproducing this setup (macOS)
+## Setup steps (Mac)
 
 1. `brew install openjdk@21 jenkins-lts`
-2. `brew services start jenkins-lts`, then open http://localhost:8080 and finish the setup wizard
-   (install suggested plugins, create an admin user).
-3. Clone this repo and check that `python3 -m unittest discover -s tests -v` passes.
-4. In Jenkins, create a Pipeline job: Pipeline script from SCM → Git → this repo's URL,
-   branch `main`, Script Path `Jenkinsfile`.
-5. Click **Build Now** and check the console output.
-6. For automatic builds, expose Jenkins through a temporary HTTPS tunnel, add a GitHub
-   webhook pointing to `/github-webhook/`, and enable the GitHub hook trigger in the job.
+2. `brew services start jenkins-lts` and open http://localhost:8080
+3. Create a Pipeline job that uses this repo and the `Jenkinsfile` on the `main` branch
+4. Click Build Now

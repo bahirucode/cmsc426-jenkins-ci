@@ -1,11 +1,8 @@
-// Declarative pipeline for the CMSC 426 CI activity.
-// Jenkins pulls this file from GitHub ("Pipeline script from SCM") and runs it.
 pipeline {
     agent any
 
     environment {
-        // Jenkins started by `brew services` only gets /usr/bin:/bin:/usr/sbin:/sbin,
-        // so put Homebrew first to use the same python3 as my terminal.
+        // Jenkins can't find Homebrew's python3 without this
         PATH = "/opt/homebrew/bin:${env.PATH}"
     }
 
@@ -16,23 +13,21 @@ pipeline {
             }
         }
 
-        stage('Environment verification') {
+        stage('Check Environment') {
             steps {
-                sh 'which python3'
                 sh 'python3 --version'
-                sh 'git --version'
             }
         }
 
-        stage('Run app') {
+        stage('Run App') {
             steps {
                 sh 'python3 app.py'
             }
         }
 
-        stage('Unit tests') {
+        stage('Run Tests') {
             steps {
-                // A failing test exits non-zero, which marks the build as FAILURE.
+                // build fails if any test fails
                 sh 'python3 -m unittest discover -s tests -v'
             }
         }
@@ -40,10 +35,10 @@ pipeline {
 
     post {
         success {
-            echo 'Build succeeded: the app ran and all unit tests passed.'
+            echo 'Build passed'
         }
         failure {
-            echo 'Build failed: check the console output above for the failing stage or test.'
+            echo 'Build failed'
         }
     }
 }
