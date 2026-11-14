@@ -30,13 +30,12 @@ python3 -m unittest discover -s tests -v
 
 The Jenkins job `Student-CI-Project` gets the code from this repo and runs the Jenkinsfile. It checks the Python version, runs the app, and runs the tests. If a test fails, the build fails.
 
-A GitHub webhook tells Jenkins when new code is pushed. Since Jenkins runs on my laptop, ngrok is used so GitHub can reach it.
+Jenkins checks GitHub for new commits every 2 minutes (Poll SCM, `H/2 * * * *`) and starts a build when it finds one. I tried a GitHub webhook with ngrok first, but my network blocked the ngrok connection, so I used polling instead.
 
 ## Setup steps (Mac)
 
 1. `brew install openjdk@21 jenkins-lts`
 2. `brew services start jenkins-lts` and open http://localhost:8080
 3. Create a Pipeline job that uses this repo and the `Jenkinsfile` on the `main` branch
-4. Click Build Now
-
-Last trigger test: November 14, 2026
+4. Under Triggers, turn on Poll SCM with `H/2 * * * *`
+5. Click Build Now once, then push changes and Jenkins builds them automatically
